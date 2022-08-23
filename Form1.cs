@@ -21,6 +21,9 @@ namespace MandelbrotFractalExplorer
     public Form1()
         {
             InitializeComponent();
+
+            Filemanager.Init();
+
             int id = 0;
             int xSections = 10;
             int ySections = 10;
@@ -104,16 +107,22 @@ namespace MandelbrotFractalExplorer
             while (cellTasks.Any())
             {
                 Task<Bitmap> completedTask = await Task.WhenAny(cellTasks).ConfigureAwait(false);
-                results[indexingArray.IndexOf(completedTask)] = completedTask.Result;
+                //results[indexingArray.IndexOf(completedTask)] = completedTask.Result;
                 cellTasks.Remove(completedTask);
             }
 
+            /*
             for (int i = 0; i < results.Length; i++)
             {
                 System.Diagnostics.Debug.WriteLine("Displaying: " + i);
                 pixelBox1.Image = results[i];
                 Task.Delay(100).Wait();
             }
+            */
+            System.Diagnostics.Debug.WriteLine("Final Cell completed");
+            Task.Delay(1000).Wait();
+            System.Diagnostics.Debug.WriteLine("Temp cleared");
+            await Filemanager.ClearTemp();
 
             return;
         }

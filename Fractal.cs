@@ -18,7 +18,6 @@ namespace MandelbrotFractalExplorer
     public class Cell
     {
         public CellData CellData { get; private set; }
-        public Bitmap Bitmap { get; private set; }
         public Task<Bitmap> Task { get; private set; }
 
         public Cell (int id, int xId, int yId, double xStart, double xEnd, double yStart, double yEnd, int height, int width, int iterations)
@@ -107,6 +106,7 @@ namespace MandelbrotFractalExplorer
                 }
             }
             System.Diagnostics.Debug.WriteLine(cellData.Id + " : Done");
+            await Filemanager.SaveToTemp(bitmap, cellData.Id);
             return bitmap;
         }
     }
