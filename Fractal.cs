@@ -108,14 +108,7 @@ namespace MandelbrotFractalExplorer
                 }
             }
 
-            Bitmap result = new Bitmap(Width, Height);
-            using (Graphics g = Graphics.FromImage(result))
-            {
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-                g.DrawImage(bitmap, 0, 0, Width, Height);
-            }
-
-            return result;
+            return bitmap;
         }
     }
 }
