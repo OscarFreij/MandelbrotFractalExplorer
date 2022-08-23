@@ -60,6 +60,7 @@ namespace MandelbrotFractalExplorer
     {
         public static async Task<Bitmap> Mandelbrot(CellData cellData)
         {
+            System.Diagnostics.Debug.WriteLine(cellData.Id + " : Started");
             double XStart = cellData.XStart;
             double XEnd = cellData.XEnd;
             double YStart = cellData.YStart;
@@ -102,12 +103,10 @@ namespace MandelbrotFractalExplorer
 
                         color = Color.FromArgb(r, g, b);
                     }
-                    System.Diagnostics.Debug.WriteLine(x);
-                    System.Diagnostics.Debug.WriteLine(y);
                     bitmap.SetPixel(x, y, color);
                 }
             }
-
+            System.Diagnostics.Debug.WriteLine(cellData.Id + " : Done");
             return bitmap;
         }
     }
