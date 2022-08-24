@@ -62,6 +62,8 @@
             this.StatusProgressBar.Location = new System.Drawing.Point(5, 421);
             this.StatusProgressBar.Name = "StatusProgressBar";
             this.StatusProgressBar.Size = new System.Drawing.Size(589, 24);
+            this.StatusProgressBar.Step = 1;
+            this.StatusProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.StatusProgressBar.TabIndex = 0;
             // 
             // StatusLable

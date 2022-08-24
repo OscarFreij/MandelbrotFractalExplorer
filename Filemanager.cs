@@ -11,34 +11,46 @@ namespace MandelbrotFractalExplorer
     public static class Filemanager
     {
         public static string BaseDirectory { get; private set; } = Directory.GetCurrentDirectory();
-        public static string TempDirectory { get; private set; } = Directory.GetCurrentDirectory() + "/temp";
+        public static string CellDirectory { get; private set; } = BaseDirectory + "/cells";
+        public static string ColumnDirectory { get; private set; } = BaseDirectory + "/columns";
 
         public static void Init()
         {
-            if (!Directory.Exists(TempDirectory))
+            if (!Directory.Exists(CellDirectory))
             {
-                Directory.CreateDirectory(TempDirectory);
+                Directory.CreateDirectory(CellDirectory);
             }
         }
 
-        public static async Task SaveToTemp(Bitmap bmp, int id)
+        public static async Task SaveCell(Bitmap bmp, int id)
         {
-            bmp.Save(TempDirectory+$"/{id}.jpeg");
+            bmp.Save(CellDirectory + $"/{id}.jpeg");
             return;
         }
 
-
-        public static async Task ClearTemp()
+        public static async Task SaveColumn(Bitmap bmp, int id)
         {
-            System.IO.DirectoryInfo di = new DirectoryInfo(TempDirectory);
+            bmp.Save(ColumnDirectory + $"/{id}.jpeg");
+            return;
+        }
+
+        public static async Task ClearCellDirectory()
+        {
+            System.IO.DirectoryInfo di = new DirectoryInfo(CellDirectory);
 
             foreach (FileInfo file in di.GetFiles())
             {
                 file.Delete();
             }
-            foreach (DirectoryInfo dir in di.GetDirectories())
+        }
+
+        public static async Task ClearColumnDirectory()
+        {
+            System.IO.DirectoryInfo di = new DirectoryInfo(ColumnDirectory);
+
+            foreach (FileInfo file in di.GetFiles())
             {
-                dir.Delete(true);
+                file.Delete();
             }
         }
     }
