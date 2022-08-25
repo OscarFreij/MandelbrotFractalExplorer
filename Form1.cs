@@ -25,14 +25,17 @@ namespace MandelbrotFractalExplorer
             Filemanager.Init();
 
             fractal = new Fractal(0,0,1,1024,1024,10,10,2048);
+            ChangeWorkStatus("IDLE");
         }
 
         private async void button1_Click(object sender, EventArgs e)
         {
+            ChangeWorkStatus("WORKING");
             StatusProgressBar.Value = 0;
             await fractal.CreateTasks();
             StatusProgressBar.Maximum = fractal.Cells.Count();
             await Generate();
+            ChangeWorkStatus("IDLE");
         }
 
         public void AddProgressStep()
@@ -46,6 +49,24 @@ namespace MandelbrotFractalExplorer
             {
                 StatusProgressBar.PerformStep();
             }
+        }
+
+        public void ChangeWorkStatus(string status)
+        {
+            if (StatusLable.InvokeRequired)
+            {
+                Action safeWrite = delegate { WriteTOStatusLable(status); };
+                StatusLable.Invoke(safeWrite);
+            }
+            else
+            {
+                WriteTOStatusLable(status);
+            }
+        }
+
+        public void WriteTOStatusLable(string status)
+        {
+            StatusLable.Text = $"Status: [{status}]";
         }
 
 
