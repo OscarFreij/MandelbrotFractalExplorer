@@ -208,7 +208,7 @@ namespace MandelbrotFractalExplorer
                 }
             }
             System.Diagnostics.Debug.WriteLine(cellData.Id + " : Done");
-            await Filemanager.SaveCell(bitmap, cellData.Id);
+            await Filemanager.SaveCell(bitmap, cellData.XId, cellData.YId);
             return;
         }
     }

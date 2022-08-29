@@ -13,6 +13,7 @@ namespace MandelbrotFractalExplorer
         public static string BaseDirectory { get; private set; } = Directory.GetCurrentDirectory();
         public static string CellDirectory { get; private set; } = BaseDirectory + "/cells";
         public static string ColumnDirectory { get; private set; } = BaseDirectory + "/columns";
+        public static string FinalDirectory { get; private set; } = BaseDirectory + "/final";
 
         public static void Init()
         {
@@ -20,17 +21,33 @@ namespace MandelbrotFractalExplorer
             {
                 Directory.CreateDirectory(CellDirectory);
             }
+
+            if (!Directory.Exists(ColumnDirectory))
+            {
+                Directory.CreateDirectory(ColumnDirectory);
+            }
+
+            if (!Directory.Exists(FinalDirectory))
+            {
+                Directory.CreateDirectory(FinalDirectory);
+            }
         }
 
-        public static async Task SaveCell(Bitmap bmp, int id)
+        public static async Task SaveCell(Bitmap bmp, int xId, int yId)
         {
-            bmp.Save(CellDirectory + $"/{id}.jpeg");
+            bmp.Save(CellDirectory + $"/{xId}x{yId}.jpeg");
             return;
         }
 
         public static async Task SaveColumn(Bitmap bmp, int id)
         {
             bmp.Save(ColumnDirectory + $"/{id}.jpeg");
+            return;
+        }
+
+        public static async Task SaveColumn(Bitmap bmp, string name)
+        {
+            bmp.Save(ColumnDirectory + $"/{name}.jpeg");
             return;
         }
 
