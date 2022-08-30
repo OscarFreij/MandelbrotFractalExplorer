@@ -65,7 +65,7 @@ namespace MandelbrotFractalExplorer
             return;
         }
 
-        public static async Task<Bitmap> ReadColumn(string id)
+        public static async Task<Bitmap> ReadColumn(int id)
         {
             Bitmap bmp;
 
@@ -81,6 +81,12 @@ namespace MandelbrotFractalExplorer
                 throw new Exception("Column is not found - ColumnID: " + id);
             }
             return bmp;
+        }
+
+        public static async Task SaveFinal(Bitmap bmp, string name)
+        {
+            bmp.Save(FinalDirectory + $"/{name}.jpeg");
+            return;
         }
 
         public static async Task ClearCellDirectory()

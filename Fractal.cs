@@ -157,7 +157,7 @@ namespace MandelbrotFractalExplorer
             for (int y = cellData.Height - 1; y >= 0; y--)
             {
                 double zy = y * (cellData.YStart - cellData.YEnd) / (cellData.Height - 1) + cellData.YEnd;
-                for (int x = 1; x < cellData.Width; x++)
+                for (int x = 0; x < cellData.Width; x++)
                 {
                     double zx = x * (cellData.XStart - cellData.XEnd) / (cellData.Width - 1) + cellData.XEnd;
                     Complex c = new Complex(zx, zy);

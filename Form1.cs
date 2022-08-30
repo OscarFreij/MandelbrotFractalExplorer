@@ -23,7 +23,7 @@ namespace MandelbrotFractalExplorer
             InitializeComponent();
             Filemanager.Init();
 
-            fractal = new Fractal(0,0,1,64,64,10,10,256);
+            fractal = new Fractal(0,0,1,256,256,100,100,2048);
             ChangeWorkStatus("IDLE");
         }
 
@@ -159,19 +159,13 @@ namespace MandelbrotFractalExplorer
                 AddProgressStep();
             }
 
+            Task.Delay(TimeSpan.FromSeconds(0.1)).Wait(); // Stupit wait to wait for while loop to close...
 
+            Bitmap result = await ImageProcessor.CreateResult(fractal.Xres, fractal.Yres, fractal.YCells, fractal.XCells, "testImage");
+            
 
+            pixelBox1.Image = result;
 
-            /*
-            for (int i = 0; i < results.Length; i++)
-            {
-                System.Diagnostics.Debug.WriteLine("Displaying: " + i);
-                pixelBox1.Image = results[i];
-                Task.Delay(100).Wait();
-            }
-            */
-
-            System.Diagnostics.Debug.WriteLine("Final Cell completed");
             Task.Delay(1000).Wait();
             
             this.fractal.Cells.Clear();
