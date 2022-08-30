@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Drawing;
+using System.Security.Cryptography;
+using System.Drawing.Imaging;
 
 namespace MandelbrotFractalExplorer
 {
@@ -41,7 +43,20 @@ namespace MandelbrotFractalExplorer
 
         public static async Task<Bitmap> ReadCell(int xId, int yId)
         {
-            return new Bitmap(ColumnDirectory + $"/{xId}x{yId}.jpeg");
+            Bitmap bmp;
+            
+            using (FileStream fs = new FileStream(CellDirectory + $"/{xId}x{yId}.jpeg", FileMode.Open))
+            {
+                byte[] buffer = new byte[fs.Length];
+                await fs.ReadAsync(buffer, 0, (int)fs.Length);
+                bmp = new Bitmap((Stream)fs);
+            }
+
+            if (bmp == null)
+            {
+                throw new Exception("Cell is not found - CellID: "+xId+"x"+yId);
+            }
+            return bmp;
         }
 
         public static async Task SaveColumn(Bitmap bmp, int id)
@@ -52,7 +67,20 @@ namespace MandelbrotFractalExplorer
 
         public static async Task<Bitmap> ReadColumn(string id)
         {
-            return new Bitmap(ColumnDirectory + $"/{id}.jpeg");
+            Bitmap bmp;
+
+            using (FileStream fs = new FileStream(ColumnDirectory + $"/{id}.jpeg", FileMode.Open))
+            {
+                byte[] buffer = new byte[fs.Length];
+                await fs.ReadAsync(buffer, 0, (int)fs.Length);
+                bmp = new Bitmap((Stream)fs);
+            }
+
+            if (bmp == null)
+            {
+                throw new Exception("Column is not found - ColumnID: " + id);
+            }
+            return bmp;
         }
 
         public static async Task ClearCellDirectory()

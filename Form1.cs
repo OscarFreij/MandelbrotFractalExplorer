@@ -16,7 +16,6 @@ namespace MandelbrotFractalExplorer
         public Fractal fractal;
         
         public List<Cell> cellList = new List<Cell>();
-        public List<Task<Bitmap>> cellTasks = new List<Task<Bitmap>>();
 
         
         public Form1()
@@ -24,7 +23,7 @@ namespace MandelbrotFractalExplorer
             InitializeComponent();
             Filemanager.Init();
 
-            fractal = new Fractal(0,0,1,1024,1024,10,10,2048);
+            fractal = new Fractal(0,0,1,64,64,10,10,256);
             ChangeWorkStatus("IDLE");
         }
 
@@ -33,13 +32,14 @@ namespace MandelbrotFractalExplorer
             ChangeWorkStatus("WORKING");
             StatusProgressBar.Value = 0;
             await fractal.CreateTasks();
-            StatusProgressBar.Maximum = fractal.Cells.Count();
+            SetProgressStepMaxSafe(fractal.Cells.Count());
             await Generate();
             ChangeWorkStatus("IDLE");
         }
 
         public void AddProgressStep()
         {
+            //ToDo: Fix speed, it is to slow
             if (StatusProgressBar.InvokeRequired)
             {
                 Action safeStep = delegate { StatusProgressBar.PerformStep(); };
@@ -49,6 +49,43 @@ namespace MandelbrotFractalExplorer
             {
                 StatusProgressBar.PerformStep();
             }
+        }
+
+        public void SetProgressStepNowSafe(int count)
+        {
+            if (StatusProgressBar.InvokeRequired)
+            {
+                Action safeStep = delegate { SetProgressStepNow(count); };
+                StatusProgressBar.Invoke(safeStep);
+            }
+            else
+            {
+                SetProgressStepNow(count);
+            }
+        }
+
+        public void SetProgressStepNow(int count)
+        {
+            StatusProgressBar.Value = count;
+        }
+
+
+        public void SetProgressStepMaxSafe(int count)
+        {
+            if (StatusProgressBar.InvokeRequired)
+            {
+                Action safeStep = delegate { SetProgressStepMax(count); };
+                StatusProgressBar.Invoke(safeStep);
+            }
+            else
+            {
+                SetProgressStepMax(count);
+            }
+        }
+
+        public void SetProgressStepMax(int count)
+        {
+            StatusProgressBar.Maximum = count;
         }
 
         public void ChangeWorkStatus(string status)
@@ -79,6 +116,9 @@ namespace MandelbrotFractalExplorer
                 cellTasks.Add(item.Task);
             }
 
+            SetProgressStepNowSafe(0);
+            SetProgressStepMaxSafe(cellTasks.Count());
+
             foreach (Task t in cellTasks)
             {
                 t.Start();
@@ -91,6 +131,37 @@ namespace MandelbrotFractalExplorer
                 AddProgressStep();
             }
 
+            List<Task> columnTasks = new List<Task>();
+
+            for (int i = 0; i < fractal.XCells; i++)
+            {
+                int j = i; // Because C# is weird...
+                Task task = new Task(action: () =>
+                {
+                    _ = ImageProcessor.CreateCollumn(j, fractal.Xres, fractal.Yres, fractal.YCells);
+                });
+
+                columnTasks.Add(task);
+            }
+
+            SetProgressStepNowSafe(0);
+            SetProgressStepMaxSafe(columnTasks.Count());
+
+            foreach (Task t in columnTasks)
+            {
+                t.Start();
+            }
+
+            while (columnTasks.Any())
+            {
+                Task completedTask = await Task.WhenAny(columnTasks).ConfigureAwait(false);
+                columnTasks.Remove(completedTask);
+                AddProgressStep();
+            }
+
+
+
+
             /*
             for (int i = 0; i < results.Length; i++)
             {
@@ -102,9 +173,13 @@ namespace MandelbrotFractalExplorer
 
             System.Diagnostics.Debug.WriteLine("Final Cell completed");
             Task.Delay(1000).Wait();
-            System.Diagnostics.Debug.WriteLine("Cell directory cleared");
+            
             this.fractal.Cells.Clear();
+            System.Diagnostics.Debug.WriteLine("Cell list cleared");
             await Filemanager.ClearCellDirectory();
+            System.Diagnostics.Debug.WriteLine("Cell directory cleared");
+            await Filemanager.ClearColumnDirectory();
+            System.Diagnostics.Debug.WriteLine("Column directory cleared");
 
             return;
         }

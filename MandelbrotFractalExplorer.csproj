@@ -55,6 +55,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Fractal.cs" />
+    <Compile Include="ImageProcessor.cs" />
     <Compile Include="PixelBox.cs">
       <SubType>Component</SubType>
     </Compile>
