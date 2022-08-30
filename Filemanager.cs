@@ -39,16 +39,20 @@ namespace MandelbrotFractalExplorer
             return;
         }
 
+        public static async Task<Bitmap> ReadCell(int xId, int yId)
+        {
+            return new Bitmap(ColumnDirectory + $"/{xId}x{yId}.jpeg");
+        }
+
         public static async Task SaveColumn(Bitmap bmp, int id)
         {
             bmp.Save(ColumnDirectory + $"/{id}.jpeg");
             return;
         }
 
-        public static async Task SaveColumn(Bitmap bmp, string name)
+        public static async Task<Bitmap> ReadColumn(string id)
         {
-            bmp.Save(ColumnDirectory + $"/{name}.jpeg");
-            return;
+            return new Bitmap(ColumnDirectory + $"/{id}.jpeg");
         }
 
         public static async Task ClearCellDirectory()
