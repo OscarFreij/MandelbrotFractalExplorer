@@ -23,7 +23,7 @@ namespace MandelbrotFractalExplorer
             InitializeComponent();
             Filemanager.Init();
 
-            fractal = new Fractal(0,0,1,256,256,100,100,2048);
+            fractal = new Fractal(0,0,1,64,64,100,100,2048);
             ChangeWorkStatus("IDLE");
         }
 
@@ -152,17 +152,18 @@ namespace MandelbrotFractalExplorer
                 t.Start();
             }
 
+            Bitmap result = new Bitmap(64,64);
             while (columnTasks.Any())
             {
                 Task completedTask = await Task.WhenAny(columnTasks).ConfigureAwait(false);
                 columnTasks.Remove(completedTask);
                 AddProgressStep();
-            }
 
-            Task.Delay(TimeSpan.FromSeconds(0.1)).Wait(); // Stupit wait to wait for while loop to close...
-
-            Bitmap result = await ImageProcessor.CreateResult(fractal.Xres, fractal.Yres, fractal.YCells, fractal.XCells, "testImage");
-            
+                if (columnTasks.Count() == 0)
+                {
+                    result = await ImageProcessor.CreateResult(fractal.Xres, fractal.Yres, fractal.YCells, fractal.XCells, "testImage");
+                }
+            }            
 
             pixelBox1.Image = result;
 
