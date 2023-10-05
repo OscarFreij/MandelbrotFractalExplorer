@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,18 +24,41 @@ namespace MandelbrotFractalExplorer
             InitializeComponent();
             Filemanager.Init();
 
-            fractal = new Fractal(0,0,1,64,64,100,100,2048);
+            //fractal = new Fractal(0,0,1,64,64,100,100,2048);
             ChangeWorkStatus("IDLE");
         }
 
-        private async void button1_Click(object sender, EventArgs e)
+        private async void generateBtn_Click(object sender, EventArgs e)
         {
+            SetFractalSettings();
             ChangeWorkStatus("WORKING");
             StatusProgressBar.Value = 0;
             await fractal.CreateTasks();
             SetProgressStepMaxSafe(fractal.Cells.Count());
             await Generate();
             ChangeWorkStatus("IDLE");
+        }
+
+        private void SetFractalSettings()
+        {
+            fractal = new Fractal(
+                (double)this.centerXNumInput.Value,
+                (double)this.centerYNumInput.Value,
+                (double)this.zoomNumInput.Value,
+                (int)this.cellWidthNumInput.Value,
+                (int)this.cellHeightNumInput.Value,
+                (int)this.horizontalCellCountNumInput.Value,
+                (int)this.verticalCellCountNumInput.Value,
+                (int)this.iterationsNumInput.Value
+                );
+
+            System.Diagnostics.Debug.WriteLine(
+                $"CX: {(double)this.centerXNumInput.Value}\n" +
+                $"CY: {(double)this.centerYNumInput.Value}\n" +
+                $"Z: {(double)this.zoomNumInput.Value}\n" +
+                $"pWH: {(int)this.cellWidthNumInput.Value}/{(int)this.cellHeightNumInput.Value}\n" +
+                $"cWH: {(int)this.horizontalCellCountNumInput.Value}/{(int)this.verticalCellCountNumInput.Value}\n" +
+                $"I: {(int)this.iterationsNumInput.Value}");    
         }
 
         public void AddProgressStep()
@@ -62,6 +86,25 @@ namespace MandelbrotFractalExplorer
             {
                 SetProgressStepNow(count);
             }
+        }
+
+        public void SetPictureSafe(Bitmap bitmap)
+        {
+            if (pixelBox1.InvokeRequired)
+            {
+                Action safeDraw = delegate { SetPicture(bitmap); };
+                pixelBox1.Invoke(safeDraw);
+            }
+            else
+            {
+                SetPicture(bitmap);
+            }
+        }
+
+        public void SetPicture(Bitmap bitmap)
+        {
+            pixelBox1.Image = bitmap;
+            pixelBox1.Refresh();
         }
 
         public void SetProgressStepNow(int count)
@@ -158,24 +201,37 @@ namespace MandelbrotFractalExplorer
                 Task completedTask = await Task.WhenAny(columnTasks).ConfigureAwait(false);
                 columnTasks.Remove(completedTask);
                 AddProgressStep();
-
-                if (columnTasks.Count() == 0)
-                {
-                    result = await ImageProcessor.CreateResult(fractal.Xres, fractal.Yres, fractal.YCells, fractal.XCells, "testImage");
-                }
-            }            
-
-            pixelBox1.Image = result;
+            }
 
             Task.Delay(1000).Wait();
+
             
+
+            do
+            {
+                System.Diagnostics.Debug.WriteLine("Current col count: "+Directory.GetFiles(Filemanager.ColumnDirectory).Length);
+                if (columnTasks.Count() == 0 && Directory.GetFiles(Filemanager.ColumnDirectory).Length == fractal.XCells)
+                {
+                    result = await ImageProcessor.CreateResult(fractal.Xres, fractal.Yres, fractal.YCells, fractal.XCells, "testImage");
+                    break;
+                }
+            }
+            while (true);
+
+
+            SetPictureSafe(result);
+            
+            
+            Task.Delay(1000).Wait();
+            result = null;
+            System.Diagnostics.Debug.WriteLine("Cleared result variable");
             this.fractal.Cells.Clear();
             System.Diagnostics.Debug.WriteLine("Cell list cleared");
             await Filemanager.ClearCellDirectory();
             System.Diagnostics.Debug.WriteLine("Cell directory cleared");
             await Filemanager.ClearColumnDirectory();
             System.Diagnostics.Debug.WriteLine("Column directory cleared");
-
+            
             return;
         }
 
