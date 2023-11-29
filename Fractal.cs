@@ -56,10 +56,10 @@ namespace MandelbrotFractalExplorer
             double yMin = -1.5;
             */
 
-            double xMax = Math.Round(XCenter + (2 / Zoom));
-            double xMin = Math.Round(XCenter - (2 / Zoom));
-            double yMax = Math.Round(YCenter + (2 / Zoom));
-            double yMin = Math.Round(YCenter - (2 / Zoom));
+            double xMax = Math.Round(XCenter + (2 / Zoom), 12);
+            double xMin = Math.Round(XCenter - (2 / Zoom), 12);
+            double yMax = Math.Round(YCenter + (2 / Zoom), 12);
+            double yMin = Math.Round(YCenter - (2 / Zoom), 12);
 
 
             double xStep;
